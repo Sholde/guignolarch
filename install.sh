@@ -80,6 +80,12 @@ EOF
 #
 mkinitcpio -p linux
 
+# Init Mirror list
+COUNTRY="Germany Belgium United_Kingdom"
+TIMEOUT=3
+pacman-mirrors --country ${COUNTRY} --timeout ${TIMEOUT}
+pacman -Syyu --noconfirm
+
 # Install others package via pacman
 CPU_COMPANY="intel" # expected intel or amd
 PACKAGE_LIST="dialog
@@ -91,7 +97,7 @@ PACKAGE_LIST="dialog
               firefox discord
               i3-wm i3status i3blocks i3lock"
 
-pacman -S ${PACKAGE_LIST}
+pacman -S ${PACKAGE_LIST} --noconfirm
 
 # grub
 grub-install --recheck /dev/sda
