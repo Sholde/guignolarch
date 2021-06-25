@@ -1,6 +1,5 @@
 #------------------------------------------------------------------------------
-# Personal installation script with different mode which are commented. Feel
-# free to decomment them to enable your preferernce.
+# Personal installation script of Arch Linux distribution with my preferences.
 #------------------------------------------------------------------------------
 # NOTE: Network should be set before launching this script.
 #------------------------------------------------------------------------------
@@ -13,6 +12,8 @@ set -e
 # Keyboard
 ## French (AZERTY)
 loadkeys fr-latin1
+## English (QWERTY)
+#loadkeys us
 
 # Network
 if [ !$(ping -4 -c 1 archlinux.org) ] ; then
@@ -24,6 +25,7 @@ fi
 timedatectl set-ntp true
 
 # Partitions the disks
+## Put all in 1 partition
 if [ test -e /sys/firmware/efi/efivars ] ; then
     # UEFI/efi
     parted /dev/sda
@@ -48,8 +50,8 @@ else
 fi
 
 # Install base packages
-PACKAGE_LIST="base linux linux-firmware"
-pacstrap -i /mnt ${PACKAGE_LIST}
+KERNEL_PACKAGE_LIST="base linux linux-firmware"
+pacstrap -i /mnt ${KERNEL_PACKAGE_LIST}
 
 # Generate an fstab
 genfstab -U /mnt > /mnt/etc/fstab
@@ -77,7 +79,7 @@ cat <<EOF >> /etc/hosts
 127.0.1.1    ${HOSTNAME}
 EOF
 
-#
+# Create the new initramfs
 mkinitcpio -p linux
 
 # Init Mirror list
@@ -88,15 +90,18 @@ pacman -Syyu --noconfirm
 
 # Install others package via pacman
 CPU_COMPANY="intel" # expected intel or amd
+UCODE=""
+if [ ${CPU_COMPANY} != "" ] ; then
+    UCODE="${CPU_COMPANY}-ucode"
+fi
 PACKAGE_LIST="dialog
               gcc gdb
               clang llvm
               emacs vim nano
               openmp openmpi
-              grub os-prober ${CPU_COMPANY}-ucode
+              grub os-prober ${UCODE}
               firefox discord
               i3-wm i3status i3blocks i3lock"
-
 pacman -S ${PACKAGE_LIST} --noconfirm
 
 # grub
@@ -106,7 +111,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 # root password
 passwd
 
-#
+# Exit root
 exit
 unmout -R /mnt
 
@@ -115,6 +120,6 @@ USER=sholde
 useradd -m -G wheel -s /bin/bash ${USER}
 passwd ${USER}
 
-# End
+# End installation
 echo "Remove the installation medium and reboot the computer."
 exit 0
