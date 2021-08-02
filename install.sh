@@ -28,20 +28,34 @@ timedatectl set-ntp true
 ## Put all in 1 partition
 if [ test -e /sys/firmware/efi/efivars ] ; then
     # UEFI/efi
-    parted /dev/sda
-    mklabel dos
-    mkpart primary ext4 250Mib
-    set 1 boot on
-    mkpart primary ext4 16 100%
-    mkfs.ext4 /dev/sda1
-    mkfs.ext4 /dev/sda2
-    mount /dev/sda2 /mnt
+    #parted /dev/sda
+    #mklabel dos
+    #mkpart primary ext4 250Mib
+    #set 1 boot on
+    #mkpart primary ext4 16 100%
+    #mkfs.ext4 /dev/sda1
+    #mkfs.ext4 /dev/sda2
+    #mount /dev/sda2 /mnt
 elif [ test -ne /sys/firmware/efi/efivars ] ; then
     # BIOS
-    parted /dev/sda
-    mklabel dos
-    set 1 boot on
-    mkpart primary ext4 16 100%
+
+    ## parted
+    #parted /dev/sda
+    #mklabel dos
+    #set 1 boot on
+    #mkpart primary ext4 16 100%
+    #mkfs.ext4 /dev/sda1
+    #mount /dev/sda1 /mnt
+
+    ## fdisk
+    fdisk /dev/sda <<EOF
+o
+n
+p
+1
+
+
+EOF
     mkfs.ext4 /dev/sda1
     mount /dev/sda1 /mnt
 else
@@ -61,29 +75,28 @@ arch-chroot /mnt
 
 # Set the time zone
 ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
-hwlock --systohc --utc
+hwclock --systohc --utc
 
 # locale
-echo "# ADDED with installation scipt" /etc/local.gen
-echo "en_US.UTF-8 UTF-8" /etc/local.gen
+echo "# ADDED with installation scipt" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/local.gen
 locale-gen
-echo "LANG=en_US.UTF-8" > /etc/local.conf
-echo "KEYMAP=fr-latin1" /etc/vconsole.conf
+echo "LANGAGE=en_US.UTF-8" >> /etc/locale.conf
+echo "LC_ALL=" >> /etc/locale.conf
+echo "LANG=en_US.UTF-8" >> /etc/locale.conf
+echo "KEYMAP=fr-latin1" >> /etc/vconsole.conf
 
 # hostname
-HOSTNAME=test
-echo "${HOSTNAME}" /etc/hostname
+HOSTNAME=sholde
+echo "${HOSTNAME}" >> /etc/hostname
 cat <<EOF >> /etc/hosts
 127.0.0.1    localhost
 ::1          localhost
-127.0.1.1    ${HOSTNAME}
+127.0.1.1    ${HOSTNAME}.localadmin ${HOSTNAME}
 EOF
 
-# Create the new initramfs
-mkinitcpio -p linux
-
 # Init Mirror list
-COUNTRY="Germany Belgium United_Kingdom"
+COUNTRY="Germany Belgium United_Kingdom France"
 TIMEOUT=3
 pacman-mirrors --country ${COUNTRY} --timeout ${TIMEOUT}
 pacman -Syyu --noconfirm
@@ -117,7 +130,7 @@ unmout -R /mnt
 
 # Create a user
 USER=sholde
-useradd -m -G wheel -s /bin/bash ${USER}
+useradd -m -G wheel,audio,video,optical -s /bin/bash ${USER}
 passwd ${USER}
 
 # End installation
