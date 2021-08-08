@@ -55,6 +55,7 @@ p
 1
 
 
+w
 EOF
     mkfs.ext4 /dev/sda1
     mount /dev/sda1 /mnt
@@ -107,32 +108,47 @@ UCODE=""
 if [ ${CPU_COMPANY} != "" ] ; then
     UCODE="${CPU_COMPANY}-ucode"
 fi
-PACKAGE_LIST="dialog
-              gcc gdb
+PACKAGE_LIST="dialog sudo
+              gcc gdb git
               clang llvm
               emacs vim nano
               openmp openmpi
               grub os-prober ${UCODE}
-              firefox discord
-              i3-wm i3status i3blocks i3lock"
+              firefox discord evince
+              xorg xorg-xinit i3 dmenu"
 pacman -S ${PACKAGE_LIST} --noconfirm
-
-# grub
-grub-install --recheck /dev/sda
-grub-mkconfig -o /boot/grub/grub.cfg
 
 # root password
 passwd
-
-# Exit root
-exit
-unmout -R /mnt
 
 # Create a user
 USER=sholde
 useradd -m -G wheel,audio,video,optical -s /bin/bash ${USER}
 passwd ${USER}
 
+
+# Init xorg
+cp /etc/X11/xinit/xinitrc /home/${USER}/.xinitrc
+for i in {1..5} ; do sed -i '$d' /home/${USER}/.xinitrc ; done
+echo "localectl --no-convert set-x11-keymap fr pc105 latin9"  >> /home/${USER}/.xinitrc
+echo "" >> /home/${USER}/.xinitrc
+echo "exec i3" >> /home/${USER}/.xinitrc
+
+# Init bash
+echo "" > /home/${USER}/.bash_profile
+echo "[[ $(fgconsole 2> /dev/null) == 1 ]] && exec startx -- vt1" > /home/${USER}/.bash_profile
+
+# Edit sudoers file
+EDITOR=emacs visudo
+
+# grub
+grub-install --recheck /dev/sda
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# Exit root
+exit
+unmout -R /mnt
+
 # End installation
-echo "Remove the installation medium and reboot the computer."
+echo "You can reboot the computer."
 exit 0
