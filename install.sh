@@ -10,10 +10,7 @@
 set -e
 
 # Keyboard
-## French (AZERTY)
 loadkeys fr-latin1
-## English (QWERTY)
-#loadkeys us
 
 # Network
 if [ !$(ping -4 -c 1 archlinux.org) ] ; then
@@ -25,30 +22,8 @@ fi
 timedatectl set-ntp true
 
 # Partitions the disks
-## Put all in 1 partition
-if [ test -e /sys/firmware/efi/efivars ] ; then
-    # UEFI/efi
-    #parted /dev/sda
-    #mklabel dos
-    #mkpart primary ext4 250Mib
-    #set 1 boot on
-    #mkpart primary ext4 16 100%
-    #mkfs.ext4 /dev/sda1
-    #mkfs.ext4 /dev/sda2
-    #mount /dev/sda2 /mnt
-elif [ test -ne /sys/firmware/efi/efivars ] ; then
-    # BIOS
-
-    ## parted
-    #parted /dev/sda
-    #mklabel dos
-    #set 1 boot on
-    #mkpart primary ext4 16 100%
-    #mkfs.ext4 /dev/sda1
-    #mount /dev/sda1 /mnt
-
-    ## fdisk
-    fdisk /dev/sda <<EOF
+## fdisk
+fdisk /dev/sda <<EOF
 o
 n
 p
@@ -57,12 +32,8 @@ p
 
 w
 EOF
-    mkfs.ext4 /dev/sda1
-    mount /dev/sda1 /mnt
-else
-    echo "Boot mode not recognized"
-    exit 1
-fi
+mkfs.ext4 /dev/sda1
+mount /dev/sda1 /mnt
 
 # Install base packages
 KERNEL_PACKAGE_LIST="base linux linux-firmware"
@@ -79,8 +50,8 @@ ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
 hwclock --systohc --utc
 
 # locale
-echo "# ADDED with installation scipt" >> /etc/locale.gen
-echo "en_US.UTF-8 UTF-8" >> /etc/local.gen
+echo "# ADDED with installation script" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
 echo "LANGAGE=en_US.UTF-8" >> /etc/locale.conf
 echo "LC_ALL=" >> /etc/locale.conf
@@ -126,17 +97,16 @@ USER=sholde
 useradd -m -G wheel,audio,video,optical -s /bin/bash ${USER}
 passwd ${USER}
 
-
 # Init xorg
 cp /etc/X11/xinit/xinitrc /home/${USER}/.xinitrc
 for i in {1..5} ; do sed -i '$d' /home/${USER}/.xinitrc ; done
-echo "localectl --no-convert set-x11-keymap fr pc105 latin9"  >> /home/${USER}/.xinitrc
+echo "setxkbmap -model pc105 -layout fr -variant latin9" >> /home/${USER}/.xinitrc
 echo "" >> /home/${USER}/.xinitrc
 echo "exec i3" >> /home/${USER}/.xinitrc
 
 # Init bash
-echo "" > /home/${USER}/.bash_profile
-echo "[[ $(fgconsole 2> /dev/null) == 1 ]] && exec startx -- vt1" > /home/${USER}/.bash_profile
+echo "" >> /home/${USER}/.bash_profile
+echo "[[ $(fgconsole 2> /dev/null) == 1 ]] && exec startx -- vt1" >> /home/${USER}/.bash_profile
 
 # Edit sudoers file
 EDITOR=emacs visudo
@@ -147,7 +117,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 # Exit root
 exit
-unmout -R /mnt
+umout -R /mnt
 
 # End installation
 echo "You can reboot the computer."
