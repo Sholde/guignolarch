@@ -79,7 +79,7 @@ UCODE=""
 if [ ${CPU_COMPANY} != "" ] ; then
     UCODE="${CPU_COMPANY}-ucode"
 fi
-PACKAGE_LIST="dialog sudo
+PACKAGE_LIST="dialog sudo doas
               gcc gdb git
               clang llvm
               emacs vim nano
@@ -87,8 +87,11 @@ PACKAGE_LIST="dialog sudo
               grub os-prober ${UCODE}
               firefox discord evince
               xorg xorg-xinit i3 dmenu
-              bind nmap geoip geoip-database geoip-database-extra metasploit"
+              networkmanager bind nmap geoip geoip-database geoip-database-extra metasploit"
 pacman -S ${PACKAGE_LIST} --needed --noconfirm
+
+# Enable NetworkManager
+systemctl enable NetworkManager
 
 # root password
 passwd
