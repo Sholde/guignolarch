@@ -86,8 +86,9 @@ PACKAGE_LIST="dialog sudo
               openmp openmpi
               grub os-prober ${UCODE}
               firefox discord evince
-              xorg xorg-xinit i3 dmenu"
-pacman -S ${PACKAGE_LIST} --noconfirm
+              xorg xorg-xinit i3 dmenu
+              bind nmap geoip geoip-database geoip-database-extra metasploit"
+pacman -S ${PACKAGE_LIST} --needed --noconfirm
 
 # root password
 passwd
