@@ -50,18 +50,23 @@ ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
 hwclock --systohc --utc
 
 # locale
-echo "# ADDED with installation script" >> /etc/locale.gen
-echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+cat >> /etc/locale.gen <<EOF
+# ADDED with installation script
+en_US.UTF-8 UTF-8
+EOF
+
 locale-gen
-echo "LANGAGE=en_US.UTF-8" >> /etc/locale.conf
-echo "LC_ALL=" >> /etc/locale.conf
-echo "LANG=en_US.UTF-8" >> /etc/locale.conf
+cat >> /etc/locale.conf <<EOF
+LANGAGE=en_US.UTF-8
+LANG=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+EOF
 echo "KEYMAP=fr-latin1" >> /etc/vconsole.conf
 
 # hostname
 HOSTNAME=sholde
 echo "${HOSTNAME}" >> /etc/hostname
-cat <<EOF >> /etc/hosts
+cat >> /etc/hosts <<EOF
 127.0.0.1    localhost
 ::1          localhost
 127.0.1.1    ${HOSTNAME}.localadmin ${HOSTNAME}
@@ -102,15 +107,21 @@ useradd -m -G wheel,audio,video,optical -s /bin/bash ${USER}
 passwd ${USER}
 
 # Init xorg
-cp /etc/X11/xinit/xinitrc /home/${USER}/.xinitrc
-for i in {1..5} ; do sed -i '$d' /home/${USER}/.xinitrc ; done
-echo "setxkbmap -model pc105 -layout fr -variant latin9" >> /home/${USER}/.xinitrc
-echo "" >> /home/${USER}/.xinitrc
-echo "exec i3" >> /home/${USER}/.xinitrc
+xorg_file=/home/${USER}/.xinitrc
+cp /etc/X11/xinit/xinitrc $xorg_file
+for i in {1..5} ; do sed -i '$d' $xorg_file ; done
+cat >> $xorg_file <<EOF
+setxkbmap -model pc105 -layout fr -variant latin9
+
+exec i3
+EOF
 
 # Init bash
-echo "" >> /home/${USER}/.bash_profile
-echo "[[ $(fgconsole 2> /dev/null) == 1 ]] && exec startx -- vt1" >> /home/${USER}/.bash_profile
+bash_profile_file=/home/${USER}/.bash_profile
+cat >> $bash_profile_file <<EOF
+
+[[ $(fgconsole 2> /dev/null) == 1 ]] && exec startx -- vt1
+EOF
 
 # Edit sudoers file
 EDITOR=emacs visudo
