@@ -58,7 +58,7 @@ if [ ${CPU_COMPANY} != "" ] ; then
     UCODE="${CPU_COMPANY}-ucode"
 fi
 PACKAGE_LIST="xfce4-terminal
-              dialog sudo doas
+              dialog sudo doas make htop
               gcc gdb git
               clang llvm
               emacs vim nano
