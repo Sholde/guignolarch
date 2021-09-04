@@ -55,7 +55,11 @@ cat >> /etc/hosts <<EOF
 127.0.1.1    ${HOSTNAME}.localadmin ${HOSTNAME}
 EOF
 
-## Init Mirror list with reflector
+# Refresh pacman keys
+echo "Refreshing pacman keys..."
+pacman-key --refresh-keys
+
+# Init Mirror list with reflector
 echo "Initialising mirror list..."
 pacman -S reflector --needed --noconfirm
 COUNTRY="Germany,Belgium,United_Kingdom,Sweden"
