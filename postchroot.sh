@@ -46,11 +46,12 @@ cat >> /etc/hosts <<EOF
 127.0.1.1    ${HOSTNAME}.localadmin ${HOSTNAME}
 EOF
 
-## Init Mirror list
-#COUNTRY="Germany Belgium United_Kingdom France"
-#TIMEOUT=3
-#pacman-mirrors --country ${COUNTRY} --timeout ${TIMEOUT}
-#pacman -Syyu --noconfirm
+## Init Mirror list with reflector
+echo "Initialising mirror list..."
+pacman -S reflector --needed --noconfirm
+COUNTRY="Germany,Belgium,United_Kingdom,Sweden"
+reflector --country ${COUNTRY} --protocol https --latest 50 --save /etc/pacman.d/mirrorlist
+pacman -Syyu --noconfirm
 
 # Install others package via pacman
 echo "Installing packages..."
