@@ -7,6 +7,18 @@
 #------------------------------------------------------------------------------
 #
 
+# Interrupt the script when error occurs
+set -e
+
+# Check input
+if [ $# != 2 ] ; then
+    echo "Needed 2 arguments: hostname, username"
+    exit 1
+fi
+
+HOSTNAME=$1
+USERNAME=$2
+
 # Set the time zone
 echo "Setting timezone..."
 ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
@@ -38,7 +50,6 @@ echo "KEYMAP=fr-latin1" >> /etc/vconsole.conf
 
 # hostname
 echo "Setting hostname..."
-HOSTNAME=sholde
 echo "${HOSTNAME}" >> /etc/hostname
 cat >> /etc/hosts <<EOF
 127.0.0.1    localhost
@@ -82,13 +93,12 @@ passwd
 
 # Create a user
 echo "Creating user..."
-USER=sholde
-useradd -m -G wheel,audio,video,optical -s /bin/bash ${USER}
-passwd ${USER}
+useradd -m -G wheel,audio,video,optical -s /bin/bash ${USERNAME}
+passwd ${USERNAME}
 
 # Init xorg
 echo "Initialising xorg..."
-xorg_file=/home/${USER}/.xinitrc
+xorg_file=/home/${USERNAME}/.xinitrc
 cp /etc/X11/xinit/xinitrc $xorg_file
 for i in {1..5} ; do sed -i '$d' $xorg_file ; done
 cat >> $xorg_file <<EOF
@@ -99,7 +109,7 @@ EOF
 
 # Init bash
 echo "Initialising bash..."
-bash_profile_file=/home/${USER}/.bash_profile
+bash_profile_file=/home/${USERNAME}/.bash_profile
 cat >> $bash_profile_file <<EOF
 
 [[ $(fgconsole 2> /dev/null) == 1 ]] && exec startx -- vt1
