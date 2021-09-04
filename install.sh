@@ -11,6 +11,15 @@
 # Interrupt the script when error occurs
 set -e
 
+# Check input
+if [ $# != 2 ] ; then
+    echo "Needed 2 arguments: hostname, username"
+    exit 1
+fi
+
+HOSTNAME=$1
+USERNAME=$2
+
 # Keyboard
 loadkeys fr-latin1
 
@@ -41,10 +50,7 @@ mount /dev/sda1 /mnt
 # Install base packages
 echo "pacstrap"
 KERNEL_PACKAGE_LIST="base linux linux-firmware"
-pacstrap -i /mnt ${KERNEL_PACKAGE_LIST} <<EOF
-
-
-EOF
+pacstrap /mnt ${KERNEL_PACKAGE_LIST}
 
 # Generate an fstab
 echo "genfstab"
@@ -54,7 +60,7 @@ genfstab -U /mnt > /mnt/etc/fstab
 echo "arch-chroot"
 cp postchroot.sh /mnt/root
 chmod 755 /mnt/root/postchroot.sh
-arch-chroot /mnt /root/postchroot.sh
+arch-chroot /mnt /root/postchroot.sh ${HOSTNAME} ${USERNAME}
 rm /mnt/root/postchroot.sh
 
 # umount
