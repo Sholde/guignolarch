@@ -26,10 +26,8 @@ hwclock --systohc --utc
 
 # locale
 echo "Setting locale..."
-cat >> /etc/locale.gen <<EOF
-# ADDED with installation script
-en_US.UTF-8 UTF-8
-EOF
+sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+sed -i 's/#fr_FR ISO/fr_FR ISO/g' /etc/locale.gen
 
 locale-gen
 cat >> /etc/locale.conf <<EOF
