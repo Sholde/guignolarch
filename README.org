@@ -1,0 +1,13 @@
+#+TITLE: Personal Arch Linux Installation
+#+AUTHOR: Sholde
+#+DATE: September 2021
+
+* Installation
+
+  After booting with an Arch Linux image, then execute these command line:
+
+  #+BEGIN_SRC bash
+    $ curl https://raw.githubusercontent.com/Sholde/guignolarch/master/guignolarch.sh
+    $ sh guignolarch.sh
+    $ sh install.sh
+  #+END_SRC
